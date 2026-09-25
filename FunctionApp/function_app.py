@@ -74,7 +74,7 @@ def process_document(inputblob: func.InputStream):
 @app.route(route="delete-metadata", auth_level=func.AuthLevel.FUNCTION)
 def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("HTTP trigger received an Event Grid request.")
-    
+
     try:
         events = req.get_json()
         if not isinstance(events, list):
@@ -82,7 +82,7 @@ def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
 
         for event in events:
             event_type = event.get("eventType")
-            
+
             # 1. Handle Event Grid Subscription Validation Handshake
             if event_type == "Microsoft.EventGrid.SubscriptionValidationEvent":
                 validation_code = event.get("data", {}).get("validationCode")
@@ -92,16 +92,15 @@ def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
                     status_code=200,
                     mimetype="application/json"
                 )
-            
+
             # 2. Handle Blob Deleted Event
             elif event_type == "Microsoft.Storage.BlobDeleted":
                 subject = event.get("subject", "")
                 logging.info(f"Blob deleted event received for subject: {subject}")
-                
+
                 if "/blobs/" in subject:
                     raw_file_name = subject.split("/")[-1]
                     file_name = urllib.parse.unquote(raw_file_name)
-                    
                     logging.info(f"Attempting to delete record for file: {file_name}")
 
                     if file_name:
@@ -110,7 +109,7 @@ def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
                             client = CosmosClient.from_connection_string(connection_string)
                             database = client.get_database_client("doc-metadata-db")
                             container = database.get_container_client("metadata")
-                            
+
                             container.delete_item(item=file_name, partition_key=file_name)
                             logging.info(f"Successfully deleted metadata record for {file_name} from Cosmos DB.")
                         except Exception as e:
