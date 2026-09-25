@@ -19,9 +19,6 @@ jobs:
     - name: 'Run pip install'
       run: |
         python -m pip install --upgrade pip
-        - name: 'Run pip install'
-      run: |
-        python -m pip install --upgrade pip
         pip install -r FunctionApp/requirements.txt
 
     - name: 'Run Azure Functions Action'
