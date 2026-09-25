@@ -70,10 +70,20 @@ def process_document(inputblob: func.InputStream):
         logging.error(traceback.format_exc())
 # -----end -----
        
+
 @app.event_grid_trigger(arg_name="event")
-def delete_document_metadata(event: func.EventGridEvent):
-    logging.info(f"Python Event Grid trigger function processed a request. Event type: {event.event_type}")
+def delete_document_metadata(event: func.EventGridEvent) -> Response: # type: ignore
+    # Note: For Python v2 native event grid triggers, we check event.event_type and handle validation
+    logging.info(f"Event Grid trigger processed event type: {event.event_type}")
     
+    # Handle subscription validation if triggered via native binding extension
+    if event.event_type == "Microsoft.EventGrid.SubscriptionValidationEvent":
+        validation_code = event.get_json().get("data", {}).get("validationCode")
+        logging.info(f"Validation handshake code: {validation_code}")
+        # The native extension automatically handles this if returned correctly, 
+        # but let's make sure our function processes the payload safely.
+        return
+
     if event.event_type == "Microsoft.Storage.BlobDeleted":
         subject = event.subject
         logging.info(f"Blob deleted event received for subject: {subject}")
