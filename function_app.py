@@ -71,7 +71,7 @@ def process_document(inputblob: func.InputStream):
         # ==========================================
 # 2. HTTP Trigger: Event Grid Deletion Webhook
 # ==========================================
-@app.route(route="delete-metadata", auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="delete-metadata", auth_level=func.AuthLevel.FUNCTION)
 def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("HTTP trigger received an Event Grid request.")
 

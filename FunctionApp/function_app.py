@@ -69,8 +69,7 @@ def process_document(inputblob: func.InputStream):
         logging.error(f"Error saving to Cosmos DB: {str(e)}")
         logging.error(traceback.format_exc())
 # -----end -----
-@app.route(route="delete-metadata", auth_level=func.AuthLevel.ANONYMOUS)
-
+@app.route(route="delete-metadata", auth_level=func.AuthLevel.FUNCTION)
 def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("HTTP trigger received an Event Grid request.")
 
