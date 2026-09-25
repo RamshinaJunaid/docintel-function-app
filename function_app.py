@@ -67,3 +67,56 @@ def process_document(inputblob: func.InputStream):
     except Exception as e:
         logging.error(f"Error saving to Cosmos DB: {str(e)}")
         logging.error(traceback.format_exc())
+
+        # ==========================================
+# 2. HTTP Trigger: Event Grid Deletion Webhook
+# ==========================================
+@app.route(route="delete-metadata", auth_level=func.AuthLevel.ANONYMOUS)
+def delete_document_metadata(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("HTTP trigger received an Event Grid request.")
+
+    try:
+        events = req.get_json()
+        if not isinstance(events, list):
+            events = [events]
+
+        for event in events:
+            event_type = event.get("eventType")
+
+            # 1. Handle Event Grid Subscription Validation Handshake
+            if event_type == "Microsoft.EventGrid.SubscriptionValidationEvent":
+                validation_code = event.get("data", {}).get("validationCode")
+                logging.info(f"Handling validation handshake with code: {validation_code}")
+                return func.HttpResponse(
+                    body=json.dumps({"validationResponse": validation_code}),
+                    status_code=200,
+                    mimetype="application/json"
+                )
+
+            # 2. Handle Blob Deleted Event
+            elif event_type == "Microsoft.Storage.BlobDeleted":
+                subject = event.get("subject", "")
+                logging.info(f"Blob deleted event received for subject: {subject}")
+
+                if "/blobs/" in subject:
+                    raw_file_name = subject.split("/")[-1]
+                    file_name = urllib.parse.unquote(raw_file_name)
+                    logging.info(f"Attempting to delete record for file: {file_name}")
+
+                    if file_name:
+                        try:
+                            connection_string = os.environ["CosmosDBConnection"]
+                            client = CosmosClient.from_connection_string(connection_string)
+                            database = client.get_database_client("doc-metadata-db")
+                            container = database.get_container_client("metadata")
+
+                            container.delete_item(item=file_name, partition_key=file_name)
+                            logging.info(f"Successfully deleted metadata record for {file_name} from Cosmos DB.")
+                        except Exception as e:
+                            logging.error(f"Error deleting record from Cosmos DB: {str(e)}")
+
+        return func.HttpResponse("Events processed successfully.", status_code=200)
+
+    except Exception as e:
+        logging.error(f"Error processing webhook request: {str(e)}")
+        return func.HttpResponse(f"Error: {str(e)}", status_code=500)
