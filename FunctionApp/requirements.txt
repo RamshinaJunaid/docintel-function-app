@@ -5,3 +5,4 @@
 azure-functions
 azure-cosmos
 azure-ai-documentintelligence
+azure-storage-blob

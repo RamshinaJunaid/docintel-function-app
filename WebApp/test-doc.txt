@@ -1,0 +1,1 @@
+This is a secure zero-trust upload test for Azure AI Document Intelligence.
