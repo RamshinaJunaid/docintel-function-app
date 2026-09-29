@@ -1,9 +1,13 @@
 # Project Submission Report
 
 **Project Title:** Event-Driven Serverless Document Intelligence Pipeline
+
 **Submitted By:** Ramsheena C
+
 **Course / Role:** Cloud Computing Trainee
+
 **Institution:** TechnoDot Academy Of R&D&I / Febno Technologies
+
 **Date of Submission:** September 29, 2026
 
 **Primary Cloud Platform:** Microsoft Azure
