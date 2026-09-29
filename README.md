@@ -11,6 +11,7 @@
 **Date of Submission:** September 29, 2026
 
 **Primary Cloud Platform:** Microsoft Azure
+
 **Core Technologies Used:** Terraform, Docker, Python (FastAPI), Azure Functions, Cosmos DB, Azure Event Grid, Azure AI Document Intelligence
 
 ---
@@ -39,19 +40,19 @@ graph TD
     EventGrid((Azure Event Grid)):::event
     FuncDelete{Azure Function<br/>delete_metadata}:::compute
 
-    User -- 1. POST Document --> API
-    API -- 2. Saves payload --> RawBlob
-    API -- 3. Immediate 200 OK --> User
-    RawBlob -- 4. BlobTrigger --> FuncProcess
-    FuncProcess -- 5. Sends document --> AI
-    AI -- 6. Returns structured text --> FuncProcess
-    FuncProcess -- 7. Computes SHA-256 & Indexes --> DB
-    FuncProcess -- 8. Moves file --> ProcBlob
-    FuncProcess -- 9. Purges original --> RawBlob
+    User -->|1. POST Document| API
+    API -->|2. Saves payload| RawBlob
+    API -->|3. Immediate 200 OK| User
+    RawBlob -->|4. BlobTrigger| FuncProcess
+    FuncProcess -->|5. Sends document| AI
+    AI -->|6. Returns structured text| FuncProcess
+    FuncProcess -->|7. Computes SHA-256 & Indexes| DB
+    FuncProcess -->|8. Moves file| ProcBlob
+    FuncProcess -->|9. Purges original| RawBlob
 
-    ProcBlob -. 10. BlobDeleted Event .-> EventGrid
-    EventGrid -. 11. Routes Event .-> FuncDelete
-    FuncDelete -. 12. Purges orphaned record .-> DB
+    ProcBlob -.->|10. BlobDeleted Event| EventGrid
+    EventGrid -.->|11. Routes Event| FuncDelete
+    FuncDelete -.->|12. Purges orphaned record| DB
 ```
 
 The pipeline operates on a completely decoupled, event-driven model:
