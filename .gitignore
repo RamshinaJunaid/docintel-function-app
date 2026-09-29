@@ -1,6 +1,19 @@
-terraform.tfstate
-terraform.tfstate.backup
-terraform.tfstate
-terraform.tfstate.backup
+# Python & Virtual Environments
+__pycache__/
+.venv/
+.env
+.python_packages/
+
+# Azure Functions Secrets
+local.settings.json
+
+# Terraform Secrets & State (CRITICAL)
 .terraform/
-.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+.terraform.tfstate.lock.info
+
+# OS Files
+.DS_Store
